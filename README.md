@@ -24,7 +24,7 @@ This program calculates constraints on the matter density parameter (Ω_m) and t
 1. Clone or download this repository
 2. Navigate to the project directory:
    ```bash
-   cd LensStatistics
+   cd GravitationalLensingStatistics
    ```
 
 3. Create a virtual environment:
