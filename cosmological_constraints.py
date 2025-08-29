@@ -152,8 +152,6 @@ class ParameterConstraints:
     
     def __init__(self, survey):
         self.survey = survey
-        self.omega_m_range = np.linspace(0.1, 0.6, 10)
-        self.omega_lambda_range = np.linspace(0.3, 0.9, 10)
     
     def chi_squared(self, params):
         """Calculate chi-squared for given parameters"""
@@ -192,53 +190,6 @@ class ParameterConstraints:
         
         return result
     
-    def calculate_confidence_contours(self):
-        """Calculate confidence contours in parameter space"""
-        chi2_grid = np.zeros((len(self.omega_m_range), len(self.omega_lambda_range)))
-        
-        for i, om in enumerate(self.omega_m_range):
-            for j, ol in enumerate(self.omega_lambda_range):
-                chi2_grid[i, j] = self.chi_squared([om, ol])
-        
-        return chi2_grid
-    
-    def plot_constraints(self, chi2_grid, best_fit):
-        """Plot parameter constraints"""
-        plt.figure(figsize=(10, 8))
-        
-        # Find minimum chi-squared
-        chi2_min = np.min(chi2_grid)
-        
-        # Plot confidence contours
-        contour_levels = [chi2_min + 2.30, chi2_min + 6.17, chi2_min + 11.8]  # 68%, 95%, 99%
-        
-        X, Y = np.meshgrid(self.omega_lambda_range, self.omega_m_range)
-        
-        contours = plt.contour(X, Y, chi2_grid, levels=contour_levels, 
-                              colors=['red', 'orange', 'yellow'], linewidths=2)
-        plt.clabel(contours, fmt={contour_levels[0]: '68%', contour_levels[1]: '95%', contour_levels[2]: '99%'})
-        
-        # Plot best fit point
-        plt.plot(best_fit.x[1], best_fit.x[0], 'r*', markersize=15, label='Best fit')
-        
-        # Plot flat universe line
-        omega_lambda_flat = 1 - self.omega_m_range
-        plt.plot(omega_lambda_flat, self.omega_m_range, 'k--', alpha=0.7, label='Flat universe')
-        
-        # Plot standard cosmology
-        plt.plot(0.7, 0.3, 'bo', markersize=8, label='ΛCDM (0.3, 0.7)')
-        
-        plt.xlabel('Ω_Λ', fontsize=14)
-        plt.ylabel('Ω_m', fontsize=14)
-        plt.title('Cosmological Parameter Constraints from Lensing Statistics', fontsize=16)
-        plt.legend()
-        plt.grid(True, alpha=0.3)
-        plt.xlim(0.3, 0.9)
-        plt.ylim(0.1, 0.6)
-        
-        plt.tight_layout()
-        plt.savefig('cosmological_constraints.png', dpi=300, bbox_inches='tight')
-        print("   - Plot saved as 'cosmological_constraints.png'")
 
 def main():
     """Main execution function"""
@@ -269,20 +220,12 @@ def main():
     print(f"   - Minimum χ² = {best_fit.fun:.2f}")
     print(f"   - Optimization success: {best_fit.success}")
     
-    # Calculate confidence contours
-    print("\n4. Calculating confidence contours...")
-    chi2_grid = constraints.calculate_confidence_contours()
-    
-    # Plot results
-    print("\n5. Plotting parameter constraints...")
-    constraints.plot_constraints(chi2_grid, best_fit)
     
     # Summary
     print("\n" + "=" * 60)
     print("SUMMARY:")
     print(f"Best-fit parameters: Ω_m = {best_fit.x[0]:.3f}, Ω_Λ = {best_fit.x[1]:.3f}")
     print(f"Flat universe parameter: Ω_k = {1 - best_fit.x[0] - best_fit.x[1]:.3f}")
-    print("Constraint plot saved as 'cosmological_constraints.png'")
 
 if __name__ == "__main__":
     main()
